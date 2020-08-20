@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Icebox", "Icebox\Icebox.csproj", "{34C5E79D-09FB-418A-A549-579DF6C08C67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Icebox.Test", "Icebox.Test\Icebox.Test.csproj", "{BFB5A973-2B44-4B99-95D0-0C64D8744769}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{34C5E79D-09FB-418A-A549-579DF6C08C67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34C5E79D-09FB-418A-A549-579DF6C08C67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34C5E79D-09FB-418A-A549-579DF6C08C67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34C5E79D-09FB-418A-A549-579DF6C08C67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFB5A973-2B44-4B99-95D0-0C64D8744769}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFB5A973-2B44-4B99-95D0-0C64D8744769}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFB5A973-2B44-4B99-95D0-0C64D8744769}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFB5A973-2B44-4B99-95D0-0C64D8744769}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
