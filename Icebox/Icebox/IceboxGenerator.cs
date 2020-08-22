@@ -7,42 +7,18 @@ namespace Icebox
 {
     public static class IceboxGenerator
     {
-        public static IReadOnlyCollection<FrozenContract> Freeze(Assembly assembly)
+        public static FrozenContract Freeze(Type type)
         {
-            var frozenContracts = assembly.GetTypes()
-                .Select(FreezeType)
-                .Where(t => t != null)
-                .ToList();
-
-            return frozenContracts;
-        }
-
-        private static FrozenContract FreezeType(Type type)
-        {
-            var isFrozenType = TypeHasFrozenAttribute(type);
-            if (!isFrozenType)
-            {
-                return null;
-            }
-            
             var properties = GetPublicPropertiesOfType(type);
-            var frozenContract = GetFrozenContractForProperties(properties);
+            var frozenContract = GetFrozenContractForProperties(type, properties);
 
             return frozenContract;
         }
 
-        private static bool TypeHasFrozenAttribute(Type type)
-        {
-            var hasFrozenAttributes = type
-                .GetCustomAttributes()
-                .Any(a => a.GetType() == typeof(FrozenAttribute));
-
-            return hasFrozenAttributes;
-        }
-
-        private static FrozenContract GetFrozenContractForProperties(PropertyInfo[] properties)
+        private static FrozenContract GetFrozenContractForProperties(Type type, PropertyInfo[] properties)
         {
             var frozenContract = new FrozenContract(
+                type.Name,
                 properties
                     .Select(ConvertPropertyInfoToFrozenContractMember)
                     .ToList());
@@ -50,7 +26,7 @@ namespace Icebox
             return frozenContract;
         }
 
-        private static PropertyInfo[] GetPublicPropertiesOfType(Type type)
+        public static PropertyInfo[] GetPublicPropertiesOfType(Type type)
         {
             var flags = BindingFlags.Public | BindingFlags.Instance;
             var properties = type.GetProperties(flags);

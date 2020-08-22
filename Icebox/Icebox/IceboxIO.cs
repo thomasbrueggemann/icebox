@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Mime;
 using System.Reflection;
@@ -8,33 +9,36 @@ namespace Icebox
 {
     public static class IceboxIO
     {
-        public static void WriteFrozenContract(FrozenContract frozenContract, bool storeIceboxesAlongsideSourceFiles)
+        public static void WriteToDisk(string assemblyName, IReadOnlyCollection<FrozenContract> frozenContracts)
         {
-            var filePath = GenerateFilePath(frozenContract, storeIceboxesAlongsideSourceFiles);
+            var filePath = GenerateFilePath(assemblyName);
             using var file = File.Create(filePath);
             
-            Serializer.Serialize(file, frozenContract);
+            Serializer.Serialize(file, frozenContracts);
         }
 
-        public static FrozenContract ReadFrozenContract(Type type, string basePath)
+        public static bool ExistsOnDisk(string assemblyName)
         {
-            var filePath = "";//GenerateFilePath(basePath, "");
+            var filePath = GenerateFilePath(assemblyName);
+            var fileExistsOnDisk = File.Exists(filePath);
+
+            return fileExistsOnDisk;
+        }
+
+        public static IReadOnlyCollection<FrozenContract> ReadFromDisk(string assemblyName)
+        {
+            var filePath = GenerateFilePath(assemblyName);
             using var file = File.OpenRead(filePath);
             
-            var frozenContracts = Serializer.Deserialize<FrozenContract>(file);
+            var frozenContracts = Serializer.Deserialize<IReadOnlyCollection<FrozenContract>>(file);
             return frozenContracts;
         }
 
-        private static string GenerateFilePath(FrozenContract frozenContract, bool storeIceboxesAlongsideSourceFiles)
+        private static string GenerateFilePath(string assemblyName)
         {
             string basePath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-
-            if (storeIceboxesAlongsideSourceFiles)
-            {
-                basePath = "";
-            }
-
-            string path = $"{basePath}{frozenContract.Name}.icebox";
+            string path = $"{basePath}{assemblyName}.icebox";
+            
             return path;
         }
     }

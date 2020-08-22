@@ -8,18 +8,14 @@ namespace Icebox
     {
         [ProtoMember(1)]
         public string Name { get; }
-        
+
         [ProtoMember(2)]
-        public string FilePath { get; }
-    
-        [ProtoMember(3)]
-        public IReadOnlyCollection<FrozenContractMember> Items { get; }
+        public IReadOnlyCollection<FrozenContractMember> Members { get; }
         
-        public FrozenContract(string name, string filePath, IReadOnlyCollection<FrozenContractMember> items)
+        public FrozenContract(string name, IReadOnlyCollection<FrozenContractMember> members)
         {
             Name = name;
-            Items = items;
-            FilePath = filePath;
+            Members = members;
         }
     }
 }
