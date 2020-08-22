@@ -14,8 +14,7 @@ namespace Icebox.Test
         [Fact]
         public void CreateAFreezeSnapshot()
         {
-            var icebox = new Icebox(typeof(TestClass));
-            icebox.Freeze();
+            
         }
     }
 }
