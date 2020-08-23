@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Mime;
 using System.Reflection;
 using ProtoBuf;
 
@@ -36,8 +34,8 @@ namespace Icebox
 
         private static string GenerateFilePath(string assemblyName)
         {
-            string basePath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
-            string path = $"{basePath}{assemblyName}.icebox";
+            string basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string path = $"{basePath}/{assemblyName}.icebox";
             
             return path;
         }

@@ -17,5 +17,9 @@ namespace Icebox
             Type = type;
             Name = name;
         }
+
+        private FrozenContractMember()
+        {
+        }
     }
 }

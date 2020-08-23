@@ -17,5 +17,9 @@ namespace Icebox
             Name = name;
             Members = members;
         }
+        
+        private FrozenContract()
+        {
+        }
     }
 }
