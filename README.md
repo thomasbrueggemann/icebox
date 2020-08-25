@@ -1,8 +1,12 @@
 # ❄️ Icebox
 
-Freezes contracual classes into snapshots for change detection in integration tests
+Freezes contracual classes into snapshots for change detection
 
 ## Installation
+
+```
+PM> Install-Package Icebox
+```
 
 ## Usage
 
@@ -45,3 +49,27 @@ public void ShouldCheckFrozenContracts(Icebox icebox)
 
 // ...
 ```
+
+Let's say over time we remove the `StatusCode` property on the `ExampleApiResponseModel` class
+
+```csharp
+using System;
+using Icebox.Attributes;
+
+[Frozen]
+public class ExampleApiResponseModel
+{
+	public string Name { get; }
+}
+```
+
+and run the unit test `ShouldCheckFrozenContracts`.
+Now the assertion that no FrozenContractException trips and we have to restore the class to match the frozen contracts.
+
+### Storing the .icebox files
+
+bla
+
+### What if I deliberately want to make breaking changes?
+
+bla
