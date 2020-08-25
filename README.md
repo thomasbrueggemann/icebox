@@ -19,3 +19,29 @@ public class ExampleApiResponseModel
 	public string Name { get; }
 }
 ```
+
+These annotations enable you to write a unit test that checks these frozen classes for changes.
+It does so by writing a snapshot (we call that the _icebox_) of all the public properties of the frozen contracts to disk.
+Everytime the unit test runs, it compares the current code base against the icebox snapshots.
+
+```csharp
+using System;
+using System.Reflection;
+using Xunit;
+using AutoFixture.Xunit2;
+using FluentAssertions;
+using Icebox.Exceptions;
+
+// ...
+
+[Theory, AutoData]
+public void ShouldCheckFrozenContracts(Icebox icebox)
+{
+	var assembly = Assembly.GetAssembly(typeof(ExampleApiResponseModel));
+	Action act = () => icebox.Check(assembly);
+
+	act.Should().NotThrow<FrozenContractException>();
+}
+
+// ...
+```
