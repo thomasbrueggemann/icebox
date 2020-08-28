@@ -1,13 +1,12 @@
-using System;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
 
 namespace Icebox.Test
 {
-    public class IceboxGeneratorTest
+    public sealed class IceboxGeneratorTest
     {
-        public class Freeze
+        public sealed class Freeze
         { 
             private class TestSubject
             {
@@ -25,21 +24,21 @@ namespace Icebox.Test
             [Fact]
             public void ShouldFreezeAClassWithTwoPublicMembers()
             {
-                var frozenContract = IceboxGenerator.Freeze(typeof(TestSubject));
+                var contract = IceboxGenerator.Freeze(typeof(TestSubject));
 
-                frozenContract.Members.Count.Should().Be(2);
+                contract.Members.Count.Should().Be(2);
 
-                var idMember = frozenContract.Members.FirstOrDefault(m => m.Name == "Id");
+                var idMember = contract.Members.FirstOrDefault(m => m.Name == "Id");
                 idMember.Should().NotBeNull();
                 idMember?.Type.Should().Be(typeof(string));
 
-                var ageMember = frozenContract.Members.FirstOrDefault(m => m.Name == "Age");
+                var ageMember = contract.Members.FirstOrDefault(m => m.Name == "Age");
                 ageMember.Should().NotBeNull();
                 ageMember?.Type.Should().Be(typeof(int));
             }   
         }
 
-        public class GetPublicPropertiesOfType
+        public sealed class GetPublicPropertiesOfType
         {
             private class TestTypeWithPublicProperties
             {

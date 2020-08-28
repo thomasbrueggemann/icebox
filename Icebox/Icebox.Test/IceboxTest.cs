@@ -8,9 +8,9 @@ using Icebox.Exceptions;
 
 namespace Icebox.Test
 {
-    public class IceboxTest
+    public sealed class IceboxTest
     {
-        public class Check
+        public sealed class Check
         {
             [Theory, AutoData]
             public void ShouldCreateANewSnapshot(Icebox icebox)
@@ -18,12 +18,12 @@ namespace Icebox.Test
                 var assembly = Assembly.GetExecutingAssembly();
                 Action act = () => icebox.Check(assembly);
                 
-                act.Should().NotThrow<FrozenContractException>();
+                act.Should().NotThrow<IceboxedContractException>();
                 act.Should().NotThrow<Exception>();
             }
         }
 
-        public class FindMatchingTypesToFrozenContracts
+        public sealed class FindMatchingTypesToIceboxedContracts
         {
             private class TestSample
             {
@@ -38,17 +38,17 @@ namespace Icebox.Test
                     typeof(TestSample)
                 };
 
-                var frozenContracts = new List<FrozenContract>
+                var contracts = new List<IceboxedContract>
                 {
-                    new FrozenContract(nameof(TestSample), new List<FrozenContractMember>
+                    new IceboxedContract(nameof(TestSample), new List<IceboxedContractMember>
                     {
-                        new FrozenContractMember(typeof(string), "Id")
+                        new IceboxedContractMember(typeof(string), "Id")
                     })
                 };
 
-                Action act = () => icebox.FindMatchingTypesToFrozenContracts(types, frozenContracts);
+                Action act = () => icebox.FindMatchingTypesToIceboxedContracts(types, contracts);
 
-                act.Should().NotThrow<FrozenContractException>();
+                act.Should().NotThrow<IceboxedContractException>();
             }
             
             [Theory, AutoData]
@@ -59,18 +59,18 @@ namespace Icebox.Test
                     typeof(TestSample)
                 };
 
-                var frozenContracts = new List<FrozenContract>
+                var contracts = new List<IceboxedContract>
                 {
-                    new FrozenContract(nameof(TestSample), new List<FrozenContractMember>
+                    new IceboxedContract(nameof(TestSample), new List<IceboxedContractMember>
                     {
-                        new FrozenContractMember(typeof(string), "Id"),
-                        new FrozenContractMember(typeof(string), "Name")
+                        new IceboxedContractMember(typeof(string), "Id"),
+                        new IceboxedContractMember(typeof(string), "Name")
                     })
                 };
 
-                Action act = () => icebox.FindMatchingTypesToFrozenContracts(types, frozenContracts);
+                Action act = () => icebox.FindMatchingTypesToIceboxedContracts(types, contracts);
 
-                act.Should().Throw<FrozenContractException>();
+                act.Should().Throw<IceboxedContractException>();
             }
             
             [Theory, AutoData]
@@ -81,17 +81,17 @@ namespace Icebox.Test
                     typeof(TestSample)
                 };
 
-                var frozenContracts = new List<FrozenContract>
+                var contracts = new List<IceboxedContract>
                 {
-                    new FrozenContract(nameof(TestSample), new List<FrozenContractMember>
+                    new IceboxedContract(nameof(TestSample), new List<IceboxedContractMember>
                     {
-                        new FrozenContractMember(typeof(int), "Id")
+                        new IceboxedContractMember(typeof(int), "Id")
                     })
                 };
 
-                Action act = () => icebox.FindMatchingTypesToFrozenContracts(types, frozenContracts);
+                Action act = () => icebox.FindMatchingTypesToIceboxedContracts(types, contracts);
 
-                act.Should().Throw<FrozenContractException>();
+                act.Should().Throw<IceboxedContractException>();
             }
         }
     }

@@ -2,7 +2,7 @@ using Icebox.Attributes;
 
 namespace Icebox.Test
 {
-    [Frozen]
+    [Iceboxed]
     public class FrozenSimpleTestClass
     {
         public string ID { get; set; }

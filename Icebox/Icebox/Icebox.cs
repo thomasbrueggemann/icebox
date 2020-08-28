@@ -32,39 +32,37 @@ namespace Icebox
             }
 
             var frozenContracts = ReadFromDisk(iceboxName);
-            FindMatchingTypesToFrozenContracts(assembly.GetTypes(), frozenContracts);
-
-            // TODO: figure out how to allow breaking changes that are intentional
+            FindMatchingTypesToIceboxedContracts(assembly.GetTypes(), frozenContracts);
         }
 
-        public void FindMatchingTypesToFrozenContracts(
+        public void FindMatchingTypesToIceboxedContracts(
             IEnumerable<Type> assemblyTypes, 
-            IReadOnlyCollection<FrozenContract> frozenContracts)
+            IReadOnlyCollection<IceboxedContract> frozenContracts)
         {
-            foreach (FrozenContract frozenContract in frozenContracts)
+            foreach (IceboxedContract frozenContract in frozenContracts)
             {
-                Type matchingAssemblyType = FindMatchingAssemblyTypeToFrozenContract(frozenContract, assemblyTypes);
+                Type matchingAssemblyType = FindMatchingAssemblyTypeToIceboxedContract(frozenContract, assemblyTypes);
 
                 if (matchingAssemblyType == null)
                 {
-                    throw new FrozenContractException(
+                    throw new IceboxedContractException(
                         frozenContract, 
-                        "FrozenContract Type not found in Assembly. Shame!");
+                        "IceboxedContract Type not found in Assembly. Shame!");
                 }
 
                 var publicPropertiesOfAssemblyType = IceboxGenerator.GetPublicPropertiesOfType(matchingAssemblyType);
-                foreach (FrozenContractMember frozenContractMember in frozenContract.Members)
+                foreach (IceboxedContractMember frozenContractMember in frozenContract.Members)
                 {
                     var matchingProperty =
-                        FindMatchingPropertyToFrozenContractMember(frozenContractMember,
+                        FindMatchingPropertyToIceboxedContractMember(frozenContractMember,
                             publicPropertiesOfAssemblyType);
 
                     if (matchingProperty == null)
                     {
-                        throw new FrozenContractException(
+                        throw new IceboxedContractException(
                             frozenContract, 
                             frozenContractMember, 
-                            "FrozenContract Property not found in Type. OMG!");
+                            "IceboxedContract Property not found in Type. OMG!");
                     }
                 }
             }
@@ -77,14 +75,16 @@ namespace Icebox
                 .ToList();
         }
 
-        private static PropertyInfo FindMatchingPropertyToFrozenContractMember(
-            FrozenContractMember frozenContractMember, PropertyInfo[] assemblyProperties)
+        private static PropertyInfo FindMatchingPropertyToIceboxedContractMember(
+            IceboxedContractMember frozenContractMember, PropertyInfo[] assemblyProperties)
         {
             return assemblyProperties.FirstOrDefault(p 
                 => p.PropertyType == frozenContractMember.Type && p.Name == frozenContractMember.Name);
         }
 
-        private static Type FindMatchingAssemblyTypeToFrozenContract(FrozenContract frozenContract, IEnumerable<Type> types)
+        private static Type FindMatchingAssemblyTypeToIceboxedContract(
+            IceboxedContract frozenContract, 
+            IEnumerable<Type> types)
         {
             return types.FirstOrDefault(t => t.Name == frozenContract.Name);
         }
@@ -105,7 +105,7 @@ namespace Icebox
         {
             var hasFrozenAttributes = type
                 .GetCustomAttributes()
-                .Any(a => a.GetType() == typeof(FrozenAttribute));
+                .Any(a => a.GetType() == typeof(IceboxedAttribute));
 
             return hasFrozenAttributes;
         }

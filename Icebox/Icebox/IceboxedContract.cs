@@ -4,21 +4,21 @@ using ProtoBuf;
 namespace Icebox
 {
     [ProtoContract]
-    public class FrozenContract
+    public class IceboxedContract
     {
         [ProtoMember(1)]
         public string Name { get; }
 
         [ProtoMember(2)]
-        public IReadOnlyCollection<FrozenContractMember> Members { get; }
+        public IReadOnlyCollection<IceboxedContractMember> Members { get; }
         
-        public FrozenContract(string name, IReadOnlyCollection<FrozenContractMember> members)
+        public IceboxedContract(string name, IReadOnlyCollection<IceboxedContractMember> members)
         {
             Name = name;
             Members = members;
         }
         
-        private FrozenContract()
+        private IceboxedContract()
         {
         }
     }

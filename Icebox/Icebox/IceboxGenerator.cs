@@ -6,20 +6,20 @@ namespace Icebox
 {
     public static class IceboxGenerator
     {
-        public static FrozenContract Freeze(Type type)
+        public static IceboxedContract Freeze(Type type)
         {
             var properties = GetPublicPropertiesOfType(type);
-            var frozenContract = GetFrozenContractForProperties(type, properties);
+            var frozenContract = GetIceboxedContractForProperties(type, properties);
 
             return frozenContract;
         }
 
-        private static FrozenContract GetFrozenContractForProperties(Type type, PropertyInfo[] properties)
+        private static IceboxedContract GetIceboxedContractForProperties(Type type, PropertyInfo[] properties)
         {
-            var frozenContract = new FrozenContract(
+            var frozenContract = new IceboxedContract(
                 type.Name,
                 properties
-                    .Select(ConvertPropertyInfoToFrozenContractMember)
+                    .Select(ConvertPropertyInfoToIceboxedContractMember)
                     .ToList());
             
             return frozenContract;
@@ -33,9 +33,9 @@ namespace Icebox
             return properties;
         }
 
-        private static FrozenContractMember ConvertPropertyInfoToFrozenContractMember(PropertyInfo propertyInfo)
+        private static IceboxedContractMember ConvertPropertyInfoToIceboxedContractMember(PropertyInfo propertyInfo)
         {
-            var member = new FrozenContractMember(propertyInfo.PropertyType, propertyInfo.Name);
+            var member = new IceboxedContractMember(propertyInfo.PropertyType, propertyInfo.Name);
             
             return member;
         }
