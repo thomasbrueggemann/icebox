@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+        <AssemblyName>IceboxCLI</AssemblyName>
+        <Nullable>enable</Nullable>
         <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
 

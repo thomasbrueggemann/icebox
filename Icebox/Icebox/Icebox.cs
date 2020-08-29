@@ -68,7 +68,7 @@ namespace Icebox
 
         private IReadOnlyCollection<Type> GetTypesWithIceboxedAttribute()
         {
-            return _assembly.GetTypes()
+            return _assembly.GetExportedTypes()
                 .Where(TypeHasFrozenAttribute)
                 .ToList();
         }

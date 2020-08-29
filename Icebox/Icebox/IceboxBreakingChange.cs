@@ -4,8 +4,8 @@ namespace Icebox
     {
         public IceboxBreakingChange(
             IceboxBreakingChangeType type, 
-            IceboxedContract contract = null, 
-            IceboxedContractMember contractMember = null)
+            IceboxedContract? contract = null, 
+            IceboxedContractMember? contractMember = null)
         {
             Type = type;
             Contract = contract;
@@ -14,8 +14,8 @@ namespace Icebox
 
         public IceboxBreakingChangeType Type { get; }
         
-        public IceboxedContract Contract { get; }
+        public IceboxedContract? Contract { get; }
         
-        public IceboxedContractMember ContractMember { get; }
+        public IceboxedContractMember? ContractMember { get; }
     }
 }

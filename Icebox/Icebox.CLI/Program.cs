@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using CommandLine;
 using static Icebox.IceboxIO;
 
@@ -24,9 +22,9 @@ namespace Icebox.CLI
     {
         public static void Main(string[] args)
         {
-            Parser.Default.ParseArguments<Options>(args)
-                .WithParsed(Run)
-                .WithNotParsed(HandleParseError);
+            Parser.Default
+                .ParseArguments<Options>(args)
+                .WithParsed(Run);
         }
 
         private static void Run(Options opts)
@@ -39,7 +37,7 @@ namespace Icebox.CLI
                 var iceboxName = icebox.Name;
                 if (iceboxName == null)
                 {
-                    Console.Error.WriteLine("Assembly name could not be determined");
+                    Console.Error.WriteLine("⚠️ Assembly name could not be determined");
                 }
 
                 var iceboxExistsOnDisk = ExistsOnDisk(opts.OutputPath, iceboxName);
@@ -48,6 +46,8 @@ namespace Icebox.CLI
                     var writeContracts = icebox.Freeze();
                     
                     WriteToDisk(opts.OutputPath, iceboxName, writeContracts);
+                    Console.WriteLine("✅ Done! Icebox has been written. To checks were carried out, " +
+                                      "since Icebox file did not exist prior to this run");
                     return;
                 }
 
@@ -56,12 +56,6 @@ namespace Icebox.CLI
 
                 Console.WriteLine(JsonSerializer.Serialize(results));
             }
-        }
-
-        private static void HandleParseError(IEnumerable<Error> errs)
-        {
-            var errors = JsonSerializer.Serialize(errs);
-            Console.Error.WriteLine(errors);
         }
     }
 }
