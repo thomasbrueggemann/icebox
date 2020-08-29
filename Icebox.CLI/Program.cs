@@ -48,13 +48,41 @@ namespace Icebox.CLI
                     WriteToDisk(opts.OutputPath, iceboxName, writeContracts);
                     Console.WriteLine("✅ Done! Icebox has been written. To checks were carried out, " +
                                       "since Icebox file did not exist prior to this run");
-                    return;
                 }
+                else
+                {
+                    var readContracts = ReadFromDisk(opts.OutputPath, iceboxName);
+                    var results = icebox.FindMatchingTypesToIceboxedContracts(readContracts);
 
-                var readContracts = ReadFromDisk(opts.OutputPath, iceboxName);
-                var results = icebox.FindMatchingTypesToIceboxedContracts(readContracts);
+                    PrintResults(results);
+                }
+            }
+        }
 
-                Console.WriteLine(JsonSerializer.Serialize(results));
+        private static void PrintResults(IceboxMatchResults results)
+        {
+            if (results.Succeeded)
+            {
+                PrintResultsSuccess();
+            }
+            else
+            {
+                PrintResultsFailure(results.BreakingChanges);
+            }
+        }
+
+        private static void PrintResultsSuccess()
+        {
+            Console.WriteLine("✅ All good, no breaking changes detected!");
+        }
+
+        private static void PrintResultsFailure(IReadOnlyCollection<IceboxBreakingChange> breakingChanges)
+        {
+            Console.WriteLine($"⚠️ {breakingChanges.Count} breaking changes detected:");
+
+            foreach (var breakingChange in breakingChanges)
+            {
+                Console.WriteLine($"  - {breakingChange?.Contract?.Name}");
             }
         }
     }

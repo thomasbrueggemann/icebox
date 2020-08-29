@@ -8,7 +8,7 @@ namespace Icebox
 {
     public class Icebox
     {
-        private Assembly _assembly;
+        private readonly Assembly _assembly;
         
         public Icebox(Assembly assembly)
         {
@@ -17,11 +17,11 @@ namespace Icebox
 
         public string? Name => _assembly?.GetName()?.Name;
 
-        public IceboxMatchResults FindMatchingTypesToIceboxedContracts(IReadOnlyCollection<IceboxedContract> iceboxedContracts)
+        public IceboxMatchResults FindMatchingTypesToIceboxedContracts(IReadOnlyCollection<IceboxedContract> contracts)
         {
             var result = new IceboxMatchResults();
             
-            foreach (IceboxedContract contract in iceboxedContracts)
+            foreach (IceboxedContract contract in contracts)
             {
                 Type matchingAssemblyType = FindMatchingAssemblyTypeToIceboxedContract(contract, _assembly.GetTypes());
 
@@ -59,33 +59,39 @@ namespace Icebox
         {
             var typesWithIceboxedAttribute = GetTypesWithIceboxedAttribute();
             
-            var iceboxedContracts = typesWithIceboxedAttribute
+            var contracts = typesWithIceboxedAttribute
                 .Select(IceboxGenerator.Freeze)
                 .ToList();
 
-            return iceboxedContracts;
+            return contracts;
         }
 
         private IReadOnlyCollection<Type> GetTypesWithIceboxedAttribute()
         {
-            return _assembly.GetExportedTypes()
+            var iceboxedTypes = _assembly.GetExportedTypes()
                 .Where(TypeHasFrozenAttribute)
                 .ToList();
+
+            return iceboxedTypes;
         }
 
         private static PropertyInfo FindMatchingPropertyToIceboxedContractMember(
             IceboxedContractMember frozenContractMember, 
             IEnumerable<PropertyInfo> assemblyProperties)
         {
-            return assemblyProperties.FirstOrDefault(p 
-                => p.PropertyType == frozenContractMember.Type && p.Name == frozenContractMember.Name);
+            var property = assemblyProperties.FirstOrDefault(p 
+                => p.PropertyType == frozenContractMember.Type && 
+                   p.Name == frozenContractMember.Name);
+            
+            return property;
         }
 
         private static Type FindMatchingAssemblyTypeToIceboxedContract(
             IceboxedContract frozenContract,
             IEnumerable<Type> types)
         {
-            return types.FirstOrDefault(t => t.Name == frozenContract.Name);
+            var type = types.FirstOrDefault(t => t.Name == frozenContract.Name);
+            return type;
         }
 
         private static bool TypeHasFrozenAttribute(Type type)
