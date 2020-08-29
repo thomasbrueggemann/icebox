@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,57 +9,53 @@ namespace Icebox
 {
     public static class IceboxIO
     {
-        public static void WriteToDisk(string assemblyName, IReadOnlyCollection<IceboxedContract> iceboxedContracts)
+        public static void WriteToDisk(
+            string outputPath, 
+            string? assemblyName, 
+            IReadOnlyCollection<IceboxedContract> iceboxedContracts)
         {
-            var filePath = GenerateFilePath(assemblyName);
+            if (assemblyName == null)
+            {
+                return;
+            }
+            
+            var filePath = GenerateFilePath(outputPath, assemblyName);
             using var file = File.Create(filePath);
             
             Serializer.Serialize(file, iceboxedContracts);
         }
 
-        public static bool ExistsOnDisk(string assemblyName)
+        public static bool ExistsOnDisk(string outputPath, string? assemblyName)
         {
-            var filePath = GenerateFilePath(assemblyName);
+            if (assemblyName == null)
+            {
+                return false;
+            }
+            
+            var filePath = GenerateFilePath(outputPath, assemblyName);
             var fileExistsOnDisk = File.Exists(filePath);
 
             return fileExistsOnDisk;
         }
 
-        public static IReadOnlyCollection<IceboxedContract> ReadFromDisk(string assemblyName)
+        public static IReadOnlyCollection<IceboxedContract> ReadFromDisk(string outputPath, string? assemblyName)
         {
-            var filePath = GenerateFilePath(assemblyName);
+            if (assemblyName == null)
+            {
+                return new List<IceboxedContract>();
+            }
+            
+            var filePath = GenerateFilePath(outputPath, assemblyName);
             using var file = File.OpenRead(filePath);
             
             var frozenContracts = Serializer.Deserialize<IReadOnlyCollection<IceboxedContract>>(file);
             return frozenContracts;
         }
 
-        private static string GenerateFilePath(string assemblyName)
+        private static string GenerateFilePath(string outputPath, string assemblyName)
         {
-            string basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string projectPath = GetParentDirectoryWithProjectFile(basePath);
-            string iceboxPath = $"{projectPath}/{assemblyName}.icebox";
-            
+            string iceboxPath = $"{outputPath}/{assemblyName}.icebox";
             return iceboxPath;
-        }
-
-        private static string GetParentDirectoryWithProjectFile(string path)
-        {
-            var parentDirectory = Directory.GetParent(path);
-
-            if (parentDirectory == null)
-            {
-                return path;
-            }
-            
-            var filesInFolder = Directory.GetFiles(parentDirectory.FullName);
-
-            if (filesInFolder.Any(f => f.EndsWith(".csproj") || f.EndsWith(".vbproj")))
-            {
-                return parentDirectory.FullName;
-            }
-
-            return GetParentDirectoryWithProjectFile(parentDirectory.FullName);
         }
     }
 }

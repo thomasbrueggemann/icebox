@@ -3,102 +3,89 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Icebox.Attributes;
-using Icebox.Exceptions;
-using static Icebox.IceboxIO;
 
 namespace Icebox
 {
     public class Icebox
     {
-        private IceboxOptions _options;
+        private Assembly _assembly;
         
-        public Icebox(IceboxOptions options)
+        public Icebox(Assembly assembly)
         {
-            _options = options;
+            _assembly = assembly;
         }
-        
-        public Icebox() {}
 
-        public void Check(Assembly assembly)
+        public string? Name => _assembly?.GetName()?.Name;
+
+        public IceboxMatchResults FindMatchingTypesToIceboxedContracts(IReadOnlyCollection<IceboxedContract> iceboxedContracts)
         {
-            var typesWithFrozenAttribute = GetTypesWithFrozenAttribute(assembly);
+            var result = new IceboxMatchResults();
             
-            var iceboxName = assembly.GetName().Name;
-            var iceboxExistsOnDisk = ExistsOnDisk(iceboxName);
-            if (!iceboxExistsOnDisk)
+            foreach (IceboxedContract contract in iceboxedContracts)
             {
-                FrezeAndWriteToDisk(typesWithFrozenAttribute, iceboxName);
-                return;
-            }
-
-            var frozenContracts = ReadFromDisk(iceboxName);
-            FindMatchingTypesToIceboxedContracts(assembly.GetTypes(), frozenContracts);
-        }
-
-        public void FindMatchingTypesToIceboxedContracts(
-            IEnumerable<Type> assemblyTypes, 
-            IReadOnlyCollection<IceboxedContract> frozenContracts)
-        {
-            foreach (IceboxedContract frozenContract in frozenContracts)
-            {
-                Type matchingAssemblyType = FindMatchingAssemblyTypeToIceboxedContract(frozenContract, assemblyTypes);
+                Type matchingAssemblyType = FindMatchingAssemblyTypeToIceboxedContract(contract, _assembly.GetTypes());
 
                 if (matchingAssemblyType == null)
                 {
-                    throw new IceboxedContractException(
-                        frozenContract, 
-                        "IceboxedContract Type not found in Assembly. Shame!");
+                    result.AddBreakingChange(new IceboxBreakingChange(
+                        IceboxBreakingChangeType.TypeNotFound,
+                        contract));
                 }
 
-                var publicPropertiesOfAssemblyType = IceboxGenerator.GetPublicPropertiesOfType(matchingAssemblyType);
-                foreach (IceboxedContractMember frozenContractMember in frozenContract.Members)
+                var publicPropertiesOfAssemblyType = IceboxGenerator
+                    .GetPublicPropertiesOfType(matchingAssemblyType)
+                    .ToList();
+                
+                foreach (IceboxedContractMember contractMember in contract.Members)
                 {
                     var matchingProperty =
-                        FindMatchingPropertyToIceboxedContractMember(frozenContractMember,
+                        FindMatchingPropertyToIceboxedContractMember(contractMember,
                             publicPropertiesOfAssemblyType);
 
                     if (matchingProperty == null)
                     {
-                        throw new IceboxedContractException(
-                            frozenContract, 
-                            frozenContractMember, 
-                            "IceboxedContract Property not found in Type. OMG!");
+                        result.AddBreakingChange(new IceboxBreakingChange(
+                            IceboxBreakingChangeType.TypeNotFound,
+                            contract,
+                            contractMember));
                     }
                 }
             }
+
+            return result;
+        }
+        
+        public IReadOnlyCollection<IceboxedContract> Freeze()
+        {
+            var typesWithIceboxedAttribute = GetTypesWithIceboxedAttribute();
+            
+            var iceboxedContracts = typesWithIceboxedAttribute
+                .Select(IceboxGenerator.Freeze)
+                .ToList();
+
+            return iceboxedContracts;
         }
 
-        private static List<Type> GetTypesWithFrozenAttribute(Assembly assembly)
+        private IReadOnlyCollection<Type> GetTypesWithIceboxedAttribute()
         {
-            return assembly.GetTypes()
+            return _assembly.GetTypes()
                 .Where(TypeHasFrozenAttribute)
                 .ToList();
         }
 
         private static PropertyInfo FindMatchingPropertyToIceboxedContractMember(
-            IceboxedContractMember frozenContractMember, PropertyInfo[] assemblyProperties)
+            IceboxedContractMember frozenContractMember, 
+            IEnumerable<PropertyInfo> assemblyProperties)
         {
             return assemblyProperties.FirstOrDefault(p 
                 => p.PropertyType == frozenContractMember.Type && p.Name == frozenContractMember.Name);
         }
 
         private static Type FindMatchingAssemblyTypeToIceboxedContract(
-            IceboxedContract frozenContract, 
+            IceboxedContract frozenContract,
             IEnumerable<Type> types)
         {
             return types.FirstOrDefault(t => t.Name == frozenContract.Name);
-        }
-        
-        private static void FrezeAndWriteToDisk(IEnumerable<Type> typesWithFrozenAttribute, string iceboxName)
-        {
-            var frozenContracts = typesWithFrozenAttribute
-                .Select(IceboxGenerator.Freeze)
-                .ToList();
-
-            if (frozenContracts.Count > 0)
-            {
-                WriteToDisk(iceboxName, frozenContracts);
-            }
         }
 
         private static bool TypeHasFrozenAttribute(Type type)

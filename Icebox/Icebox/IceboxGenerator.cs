@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -14,21 +15,21 @@ namespace Icebox
             return frozenContract;
         }
 
-        private static IceboxedContract GetIceboxedContractForProperties(Type type, PropertyInfo[] properties)
+        private static IceboxedContract GetIceboxedContractForProperties(Type type, IEnumerable<PropertyInfo> properties)
         {
-            var frozenContract = new IceboxedContract(
+            var contract = new IceboxedContract(
                 type.Name,
                 properties
                     .Select(ConvertPropertyInfoToIceboxedContractMember)
                     .ToList());
             
-            return frozenContract;
+            return contract;
         }
 
-        public static PropertyInfo[] GetPublicPropertiesOfType(Type type)
+        public static IEnumerable<PropertyInfo> GetPublicPropertiesOfType(Type? type)
         {
             var flags = BindingFlags.Public | BindingFlags.Instance;
-            var properties = type.GetProperties(flags);
+            var properties = type?.GetProperties(flags).ToList() ?? new List<PropertyInfo>();
 
             return properties;
         }
