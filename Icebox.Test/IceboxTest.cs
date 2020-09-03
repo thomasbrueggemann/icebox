@@ -4,25 +4,12 @@ using System.Reflection;
 using Xunit;
 using AutoFixture.Xunit2;
 using FluentAssertions;
-using Icebox.Exceptions;
+using Moq;
 
 namespace Icebox.Test
 {
     public sealed class IceboxTest
     {
-        public sealed class Check
-        {
-            [Theory, AutoData]
-            public void ShouldCreateANewSnapshot(Icebox icebox)
-            {
-                var assembly = Assembly.GetExecutingAssembly();
-                Action act = () => icebox.Check(assembly);
-                
-                act.Should().NotThrow<IceboxedContractException>();
-                act.Should().NotThrow<Exception>();
-            }
-        }
-
         public sealed class FindMatchingTypesToIceboxedContracts
         {
             private class TestSample
@@ -31,12 +18,15 @@ namespace Icebox.Test
             }
             
             [Theory, AutoData]
-            public void ShouldNotDetectAnyBreakingChangesSinceThereAreNone(Icebox icebox)
+            public void ShouldNotDetectAnyBreakingChangesSinceThereAreNone()
             {
-                var types = new List<Type>
+                var assemblyMock = new Mock<Assembly>();
+                assemblyMock.Setup(a => a.GetTypes()).Returns(new []
                 {
                     typeof(TestSample)
-                };
+                });
+
+                var sut = new Icebox(assemblyMock.Object);
 
                 var contracts = new List<IceboxedContract>
                 {
@@ -46,18 +36,21 @@ namespace Icebox.Test
                     })
                 };
 
-                Action act = () => icebox.FindMatchingTypesToIceboxedContracts(types, contracts);
+                var result = sut.FindMatchingTypesToIceboxedContracts(contracts);
 
-                act.Should().NotThrow<IceboxedContractException>();
+                result.Succeeded.Should().BeTrue();
             }
             
             [Theory, AutoData]
-            public void ShouldDetectABreakingChangeOfMissingProperty(Icebox icebox)
+            public void ShouldDetectABreakingChangeOfMissingProperty()
             {
-                var types = new List<Type>
+                var assemblyMock = new Mock<Assembly>();
+                assemblyMock.Setup(a => a.GetTypes()).Returns(new []
                 {
                     typeof(TestSample)
-                };
+                });
+
+                var sut = new Icebox(assemblyMock.Object);
 
                 var contracts = new List<IceboxedContract>
                 {
@@ -68,18 +61,21 @@ namespace Icebox.Test
                     })
                 };
 
-                Action act = () => icebox.FindMatchingTypesToIceboxedContracts(types, contracts);
+                var result = sut.FindMatchingTypesToIceboxedContracts(contracts);
 
-                act.Should().Throw<IceboxedContractException>();
+                result.Succeeded.Should().BeFalse();
             }
             
             [Theory, AutoData]
-            public void ShouldDetectABreakingDatatypeChange(Icebox icebox)
+            public void ShouldDetectABreakingDatatypeChange()
             {
-                var types = new List<Type>
+                var assemblyMock = new Mock<Assembly>();
+                assemblyMock.Setup(a => a.GetTypes()).Returns(new []
                 {
                     typeof(TestSample)
-                };
+                });
+
+                var sut = new Icebox(assemblyMock.Object);
 
                 var contracts = new List<IceboxedContract>
                 {
@@ -89,9 +85,9 @@ namespace Icebox.Test
                     })
                 };
 
-                Action act = () => icebox.FindMatchingTypesToIceboxedContracts(types, contracts);
+                var result = sut.FindMatchingTypesToIceboxedContracts(contracts);
 
-                act.Should().Throw<IceboxedContractException>();
+                result.Succeeded.Should().BeFalse();
             }
         }
     }

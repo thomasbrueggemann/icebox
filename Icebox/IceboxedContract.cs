@@ -7,7 +7,7 @@ namespace Icebox
     public class IceboxedContract
     {
         [ProtoMember(1)]
-        public string Name { get; }
+        public string? Name { get; }
 
         [ProtoMember(2)]
         public IReadOnlyCollection<IceboxedContractMember> Members { get; }
@@ -20,6 +20,7 @@ namespace Icebox
         
         private IceboxedContract()
         {
+            Members = new IceboxedContractMember[] { };
         }
     }
 }

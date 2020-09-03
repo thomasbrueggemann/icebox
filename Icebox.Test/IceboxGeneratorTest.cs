@@ -67,14 +67,14 @@ namespace Icebox.Test
             public void ShouldReturnAllPublicPropertiesOfAType()
             {
                 var properties = IceboxGenerator.GetPublicPropertiesOfType(typeof(TestTypeWithPublicProperties));
-                properties.Length.Should().Be(2);
+                properties.Count().Should().Be(2);
             }
             
             [Fact]
             public void ShouldReturnEmptyArrayForATypeWithNoPublicProperties()
             {
                 var properties = IceboxGenerator.GetPublicPropertiesOfType(typeof(TestTypeWithNoPublicProperties));
-                properties.Length.Should().Be(0);
+                properties.Count().Should().Be(0);
             }
         }
     }
