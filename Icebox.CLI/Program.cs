@@ -8,9 +8,6 @@ namespace Icebox.CLI
 {
     public sealed class Options
     {
-        [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
-        public bool Verbose { get; set; }
-
         [Option('a', "assemblies", Required = true, HelpText = "Comma-separated assembly-paths to inspect")]
         public IEnumerable<string> Assemblies { get; set; }
         
@@ -32,7 +29,7 @@ namespace Icebox.CLI
             foreach (string assemblyPath in opts.Assemblies)
             {
                 var assembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
-                
+
                 var icebox = new Icebox(assembly);
                 var iceboxName = icebox.Name;
                 if (iceboxName == null)
@@ -40,49 +37,11 @@ namespace Icebox.CLI
                     Console.Error.WriteLine("⚠️ Assembly name could not be determined");
                 }
 
-                var iceboxExistsOnDisk = ExistsOnDisk(opts.OutputPath, iceboxName);
-                if (!iceboxExistsOnDisk)
-                {
-                    var writeContracts = icebox.Freeze();
-                    
-                    WriteToDisk(opts.OutputPath, iceboxName, writeContracts);
-                    Console.WriteLine("✅ Done! Icebox has been written. To checks were carried out, " +
-                                      "since Icebox file did not exist prior to this run");
-                }
-                else
-                {
-                    var readContracts = ReadFromDisk(opts.OutputPath, iceboxName);
-                    var results = icebox.FindMatchingTypesToIceboxedContracts(readContracts);
+                var writeContracts = icebox.Freeze();
 
-                    PrintResults(results);
-                }
-            }
-        }
-
-        private static void PrintResults(IceboxMatchResults results)
-        {
-            if (results.Succeeded)
-            {
-                PrintResultsSuccess();
-            }
-            else
-            {
-                PrintResultsFailure(results.BreakingChanges);
-            }
-        }
-
-        private static void PrintResultsSuccess()
-        {
-            Console.WriteLine("✅ All good, no breaking changes detected!");
-        }
-
-        private static void PrintResultsFailure(IReadOnlyCollection<IceboxBreakingChange> breakingChanges)
-        {
-            Console.WriteLine($"⚠️ {breakingChanges.Count} breaking changes detected:");
-
-            foreach (var breakingChange in breakingChanges)
-            {
-                Console.WriteLine($"  - {breakingChange?.Contract?.Name}");
+                WriteToDisk(opts.OutputPath, iceboxName, writeContracts);
+                Console.WriteLine("✅ Done! Icebox has been written. To checks were carried out, " +
+                                  "since Icebox file did not exist prior to this run");
             }
         }
     }

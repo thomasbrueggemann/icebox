@@ -9,6 +9,20 @@ namespace Icebox
 {
     public static class IceboxIO
     {
+        public static IReadOnlyCollection<string> FindAllIceboxFiles()
+        {
+            string currentAssemblyDirectory = Directory.GetCurrentDirectory();
+            
+            string[] files = Directory.GetFiles(
+                currentAssemblyDirectory, 
+                "*.icebox", 
+                SearchOption.AllDirectories);
+            
+            return files
+                .ToList()
+                .AsReadOnly();
+        }
+        
         public static void WriteToDisk(
             string outputPath, 
             string? assemblyName, 

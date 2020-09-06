@@ -16,8 +16,38 @@ namespace Icebox
         }
 
         public string? Name => _assembly?.GetName()?.Name;
+        
+        public IReadOnlyCollection<IceboxedContract> Freeze()
+        {
+            var typesWithIceboxedAttribute = GetTypesWithIceboxedAttribute();
+            
+            var contracts = typesWithIceboxedAttribute
+                .Select(IceboxGenerator.Freeze)
+                .ToList();
 
-        public IceboxMatchResults FindMatchingTypesToIceboxedContracts(IReadOnlyCollection<IceboxedContract> contracts)
+            return contracts;
+        }
+
+        public IceboxMatchResults Check()
+        {
+            var iceboxPath = _assembly.Location;
+            
+            var iceboxExistsOnDisk = IceboxIO.ExistsOnDisk(iceboxPath, Name);
+            if (iceboxExistsOnDisk == true)
+            {
+                var contracts = IceboxIO.ReadFromDisk(iceboxPath, Name);
+                var results = FindMatchingTypesToIceboxedContracts(contracts);
+
+                return results;
+            }
+
+            var fileNotFoundResult = new IceboxMatchResults();
+            fileNotFoundResult.AddBreakingChange(new IceboxBreakingChange(IceboxBreakingChangeType.FileNotFound));
+
+            return fileNotFoundResult;
+        }
+        
+        private IceboxMatchResults FindMatchingTypesToIceboxedContracts(IReadOnlyCollection<IceboxedContract> contracts)
         {
             var result = new IceboxMatchResults();
             
@@ -53,17 +83,6 @@ namespace Icebox
             }
 
             return result;
-        }
-        
-        public IReadOnlyCollection<IceboxedContract> Freeze()
-        {
-            var typesWithIceboxedAttribute = GetTypesWithIceboxedAttribute();
-            
-            var contracts = typesWithIceboxedAttribute
-                .Select(IceboxGenerator.Freeze)
-                .ToList();
-
-            return contracts;
         }
 
         private IReadOnlyCollection<Type> GetTypesWithIceboxedAttribute()
